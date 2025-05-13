@@ -12,13 +12,14 @@ return new class extends Migration
             $table->id('job_id');
             $table->string('title', 200);
             $table->text('description');
-            $table->string('budget', 10, 2);
+            $table->decimal('budget', 10, 2);
             $table->string('location', 100);
             $table->date('deadline');
-            $table->unsignedBigInteger('user_id');
             $table->string('image')->nullable();
             $table->string('status', 20)->default('Open');
             $table->timestamps();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

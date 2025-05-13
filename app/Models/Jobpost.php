@@ -21,4 +21,19 @@ class Jobpost extends Model
         'image',
         'status',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function bids()
+    {
+        return $this->hasMany(Bid::class, 'job_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasOne(Review::class, 'job_id');
+    }
 }
