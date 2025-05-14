@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('status', 20)->default('active');
             $table->rememberToken();
+            $table->foreignId('role_id')->constrained('roles', 'role_id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
-            $table->unsignedBigInteger('role_id');
-            $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('restrict')->onUpdate('cascade');
+
 
         });
 
