@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Bid extends Model
 {
     protected $primaryKey = 'bids_id';
-    protected $fillable = ['artisan_id', 'job_id', 'price_estimate', 'timeline', 'status'];
+    protected $fillable = ['artisan_id', 'job_id','user_name', 'price_estimate', 'timeline', 'status'];
 
     public function artisan()
     {
