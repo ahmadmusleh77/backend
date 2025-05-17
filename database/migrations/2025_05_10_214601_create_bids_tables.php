@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bids', function (Blueprint $table) {
             $table->id('bids_id');
+            $table->string('user_name');
             $table->integer('price_estimate');
             $table->string("timeline");
             $table->string("status")->default('Pending');
