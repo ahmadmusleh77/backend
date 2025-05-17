@@ -9,7 +9,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-//Bid
+//Bids
 Route::post('offers/{jobPostId}',[BidController::class,'submitOffer']);
 Route::get('/artisan/bids', [  BidController::class, 'getArtisanBids']);
 Route::delete('/bids/{bidId}/cancel',[BidController::class, 'cancelBid']);
