@@ -117,7 +117,7 @@ public function getArtisanBids()
     }
 
 
-    // عروض وظيفة معينة (مطابق مع تحسين الأداء)
+    // عروض وظيفة معينة
     public function getJobBids($jobId)
     {
         $bids = Bid::where('job_id', $jobId)
@@ -139,7 +139,7 @@ public function getArtisanBids()
         return response()->json($bids,201);
     }
 
-    // الرد على العرض (مطابق مع تحسينات الأمان)
+    // الرد على العرض اما القبول او الرفض
     public function respondToBid(Request $request, $bidId)
     {
         $validated = $request->validate([
