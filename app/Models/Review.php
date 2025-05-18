@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Review extends Model
 {
     protected $primaryKey = 'review_id';
-    public $timestamps = false;
 
     protected $fillable = [
-        'reviewer_id', 'reviewee_id', 'job_id', 'rating'
+        'reviewer_id',
+        'reviewee_id',
+        'job_id',
+        'rating',
+        'comment',
     ];
-
 
     public function reviewer()
     {
