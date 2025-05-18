@@ -1,0 +1,51 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "My Awesome API",
+        "description": "Swagger test documentation",
+        "contact": {
+            "email": "your@email.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/offers": {
+            "post": {
+                "tags": [
+                    "Bid"
+                ],
+                "summary": "submitOffer",
+                "operationId": "2f6bd0284cc4d024b2387d0e7a6131fd",
+                "responses": {
+                    "200": {
+                        "description": "Successful submitOffer"
+                    }
+                }
+            }
+        },
+        "/api/welcome": {
+            "get": {
+                "tags": [
+                    "Swagger"
+                ],
+                "summary": "Say Hello",
+                "operationId": "d946736bceed50ae792cfa421a93599c",
+                "responses": {
+                    "200": {
+                        "description": "Successful welcome"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Bid",
+            "description": "Bid"
+        },
+        {
+            "name": "Swagger",
+            "description": "Swagger"
+        }
+    ]
+}

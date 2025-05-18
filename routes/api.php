@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 //Bids
-Route::post('offers/{jobPostId}',[BidController::class,'submitOffer']);
+Route::post('/offers',[BidController::class,'submitOffer']);
 Route::get('/artisan/bids', [  BidController::class, 'getArtisanBids']);
 Route::delete('/bids/{bidId}/cancel',[BidController::class, 'cancelBid']);
 Route::get('/artisan/bids/accepted',[BidController::class, 'getAcceptedOffers']);
@@ -24,3 +24,5 @@ Route::get('/chat/{sender_id}/{receiver_id}',[MessageController::class,'getMessa
 Route::post('/chat/send',[MessageController::class,'sendMessage']);
 Route::get('/chat/contacts/{user_id}', [MessageController::class, 'getContacts']);
 
+//swagger
+Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
