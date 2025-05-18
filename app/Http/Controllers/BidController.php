@@ -47,7 +47,7 @@ class BidController extends Controller
       //'bid' => new BidResource($bid->load('jobPost'))],201);
     }
 
-    //الحصول على عروض الحرفي
+
 public function getArtisanBids()
 {
     $bids = Bid::where('artisan_id',Auth::id())
