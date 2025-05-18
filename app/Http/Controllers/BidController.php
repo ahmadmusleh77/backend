@@ -13,9 +13,19 @@ class BidController extends Controller
 
 {
 
-
+    /**
+     * @OA\Post(
+     *     path="/api/offers",
+     *     summary="submitOffer",
+     *     tags={"Bid"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful submitOffer"
+     *     )
+     * )
+     */
     //تقديم عرض جديد
-    public function submitOffer(Request $request, $jobPostId)
+    public function submitOffer(Request $request)
     {
         $validated = $request->validate([
               'user_name' => 'required|string|max:255',
@@ -23,10 +33,8 @@ class BidController extends Controller
               'startDate' => 'required|date',
         ]);
 
-        $jobPost = Jobpost::findOrFail($jobPostId);
+
         $bid =  Bid::create([
-            'job_id' => $jobPost->job_id,
-            'artisan_id' => Auth::id(),
             'artisan_name' => $validated['user_name'],
             'price_estimate' =>$validated['amount'],
             'timeline' => $validated['startDate'],
@@ -39,7 +47,7 @@ class BidController extends Controller
       //'bid' => new BidResource($bid->load('jobPost'))],201);
     }
 
-    //الحصول على عروض الحرفي
+
 public function getArtisanBids()
 {
     $bids = Bid::where('artisan_id',Auth::id())
