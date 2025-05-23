@@ -10,10 +10,8 @@ use Illuminate\Http\Request;
 class MessageController extends Controller
 {
 
-    // عرض لائحة المحادثات لكل مستخدم
     public function getChatContacts($userId)
     {
-        // جلب جميع المستخدمين الذين تواصل معهم هذا المستخدم
         $contacts = User::where('user_id', '!=', $userId)->get()->map(function ($user) use ($userId) {
             $messages = Message::where(function ($query) use ($userId, $user) {
                 $query->where('sender_id', $userId)->where('receiver_id', $user->user_id)
@@ -39,7 +37,6 @@ class MessageController extends Controller
         return response()->json($contacts);
     }
 
-// إرسال رسالة جديدة
     public function sendMessage(Request $request)
     {
         $validated = $request->validate([
