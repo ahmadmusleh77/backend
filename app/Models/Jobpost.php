@@ -20,6 +20,7 @@ class Jobpost extends Model
         'user_id',
         'image',
         'status',
+        'current_status'
     ];
 
     public function user()

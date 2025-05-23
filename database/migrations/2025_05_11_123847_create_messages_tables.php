@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id('message_id');
             $table->text('content');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
             $table->unsignedBigInteger('sender_id');
             $table->unsignedBigInteger('receiver_id');
 

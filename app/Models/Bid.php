@@ -11,7 +11,7 @@ class Bid extends Model
 
     public function artisan()
     {
-        return $this->belongsTo(User::class, 'artisan_id');
+        return $this->belongsTo(User::class, 'artisan_id','user_id');
 
     }
 
