@@ -10,19 +10,22 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 //Bids
-Route::post('/offers',[BidController::class,'submitOffer']);
-Route::get('/artisan/bids', [  BidController::class, 'getArtisanBids']);
-Route::delete('/bids/{bidId}/cancel',[BidController::class, 'cancelBid']);
-Route::get('/artisan/bids/accepted',[BidController::class, 'getAcceptedOffers']);
-Route::put('/bids/{bidId}/status' , [BidController::class,'updateOfferStatus']);
-Route::get('/job/{jobId}/bids', [BidController::class, 'getJobBids']);
-Route::post('/bids/{bidId}/respond', [BidController::class, 'respondToBid']);
-
+Route::get('artisan/bids',[BidController::class,'getPost']);
+Route::post('artisan/bids',[BidController::class,'sendBids']);
+Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+Route::put('/artisan/{id}', [BidController::class, 'cancelBid']);
+Route::get('/bids/accepted', [BidController::class, 'getAcceptedBids']);
+Route::put('/bids/update-status/{id}', [BidController::class, 'updateBidStatus']);
+Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
+Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
 
 //Message
-Route::get('/chat/{sender_id}/{receiver_id}',[MessageController::class,'getMessages']);
+Route::get('/chat/contacts/{userId}', [MessageController::class,'getChatContacts']);
 Route::post('/chat/send',[MessageController::class,'sendMessage']);
-Route::get('/chat/contacts/{user_id}', [MessageController::class, 'getContacts']);
+
+
+//Filter
+Route::get('/jobposts/filter',[\App\Http\Controllers\JobFilterController::class,'filterJobs']);
 
 //swagger
 Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
