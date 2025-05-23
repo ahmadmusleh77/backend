@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\BidController;
+use App\Http\Controllers\JobFilterController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\SwaggerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +27,7 @@ Route::post('/chat/send',[MessageController::class,'sendMessage']);
 
 
 //Filter
-Route::get('/jobposts/filter',[\App\Http\Controllers\JobFilterController::class,'filterJobs']);
+Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
-Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
+Route::get('/welcome',[SwaggerController::class,'welcome']);
