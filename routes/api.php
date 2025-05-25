@@ -3,7 +3,9 @@
 
 
 use App\Http\Controllers\BidController;
+use App\Http\Controllers\JobFilterController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\SwaggerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthApiController;
@@ -38,9 +40,10 @@ Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentS
 Route::get('/chat/contacts/{userId}', [MessageController::class,'getChatContacts']);
 Route::post('/chat/send',[MessageController::class,'sendMessage']);
 //Filter
-Route::get('/jobposts/filter',[\App\Http\Controllers\JobFilterController::class,'filterJobs']);
+Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
+
 Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
 
 // Password Reset Routes for API
@@ -69,3 +72,4 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
         return back()->withErrors(['email' => [__($status)]]);
     }
 })->name('password.update');
+
