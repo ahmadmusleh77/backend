@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('status', 20)->default('active');
+            $table->boolean('is_approved')->default(0);
             $table->rememberToken();
             $table->foreignId('role_id')->constrained('roles', 'role_id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
