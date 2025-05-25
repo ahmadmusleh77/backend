@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use function Symfony\Component\String\b;
 
-class BidController extends Controller
+class كطBidController extends Controller
 
 {
 
