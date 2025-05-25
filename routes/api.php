@@ -31,3 +31,7 @@ Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
 Route::get('/welcome',[SwaggerController::class,'welcome']);
+
+Route::post('/signup',[MessageController::class,'signUp']);
+Route::post('/login',[MessageController::class,'login']);
+Route::post('/forgot-password',[MessageController::class,' sendResetLinkEmail']);
