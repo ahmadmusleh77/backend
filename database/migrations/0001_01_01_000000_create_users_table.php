@@ -16,6 +16,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('status', 20)->default('active');
+            $table->boolean('is_approved')->default(0);
             $table->rememberToken();
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('restrict')->onUpdate('cascade');
