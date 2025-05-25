@@ -1,15 +1,30 @@
 <?php
 
+
+
 use App\Http\Controllers\BidController;
 use App\Http\Controllers\JobFilterController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SwaggerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthApiController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+Route::post('/signup', [AuthApiController::class, 'signUp']);
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/reset-password', [AuthApiController::class, 'sendResetLinkEmail']);
+Route::post('/otp-verification', [AuthApiController::class, 'verifyOtp']);
+Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
+
+
+
+
+
+
 
 //Bids
 Route::get('artisan/bids',[BidController::class,'getPost']);
@@ -31,7 +46,3 @@ Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
 Route::get('/welcome',[SwaggerController::class,'welcome']);
-
-Route::post('/signup',[MessageController::class,'signUp']);
-Route::post('/login',[MessageController::class,'login']);
-Route::post('/forgot-password',[MessageController::class,' sendResetLinkEmail']);
