@@ -136,13 +136,4 @@ class BidController extends Controller
         ]);
     }
 
-
-
-
-
-    //FILTER POST
-
-
-
-
 }

@@ -39,37 +39,10 @@ Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentS
 //Message
 Route::get('/chat/contacts/{userId}', [MessageController::class,'getChatContacts']);
 Route::post('/chat/send',[MessageController::class,'sendMessage']);
+
+
 //Filter
 Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
-
-Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
-
-// Password Reset Routes for API
-Route::get('password/reset/{token}', function ($token) {
-    return view('auth.reset-password', ['token' => $token]);
-})->name('password.reset');
-
-Route::post('password/reset', function (\Illuminate\Http\Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|confirmed|min:6',
-    ]);
-
-    $status = \Illuminate\Support\Facades\Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($password);
-            $user->save();
-        }
-    );
-
-    if ($status == \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
-        return redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
-    } else {
-        return back()->withErrors(['email' => [__($status)]]);
-    }
-})->name('password.update');
-
+Route::get('/welcome',[SwaggerController::class,'welcome']);
