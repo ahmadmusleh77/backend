@@ -46,7 +46,7 @@ Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
 
 //swagger
 
-Route::get('/welcome',[\App\Http\Controllers\SwaggerController::class,'welcome']);
+Route::get('/welcome',[SwaggerController::class,'welcome']);
 
 /////admin rep
 /// home
@@ -70,7 +70,7 @@ Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'dele
 Route::put('/Accept/{id}', [App\Http\Controllers\AdminController::class, 'Accept']);
 //
 
-Route::get('/welcome',[SwaggerController::class,'welcome']);
+
 
 
 
