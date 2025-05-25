@@ -9,52 +9,52 @@ use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
-// استرجاع الرسائل بين مستخدمين
-    public function getMessages($sender_id, $receiver_id)
+
+    public function getChatContacts($userId)
     {
-        $messages = Message::where(function ($query) use ($sender_id, $receiver_id) {
-            $query->where('sender_id', $sender_id)
-                ->where('receiver_id', $receiver_id);
-        })->orWhere(function ($query) use ($sender_id, $receiver_id) {
-            $query->where('sender_id', $receiver_id)
-                ->where('receiver_id', $sender_id);
-        })
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        return response()->json($messages);
-    }
-
-
-    // إرسال رسالة جديدة
-    public function sendMessage(Request $request)
-    {
-        $request->validate([
-            'sender_id' => 'required|exists:users,user_id',
-            'receiver_id' => 'required|exists:users,user_id',
-            'content' => 'required|string',
-        ]);
-
-        $message = Message::create([
-            'sender_id' => $request->sender_id,
-            'receiver_id' => $request->receiver_id,
-            'content' => $request->content,
-        ]);
-
-        return response()->json($message, 201);
-    }
-
-
-    // استرجاع قائمة المحادثات الخاصة بمستخدم
-    public function getContacts($user_id)
-    {
-        $contacts = User::whereHas('sentMessages', function ($query) use ($user_id) {
-            $query->where('receiver_id', $user_id);
-        })->orWhereHas('receivedMessages', function ($query) use ($user_id) {
-            $query->where('sender_id', $user_id);
-        })->get();
+        $contacts = User::where('user_id', '!=', $userId)->get()->map(function ($user) use ($userId) {
+            $messages = Message::where(function ($query) use ($userId, $user) {
+                $query->where('sender_id', $userId)->where('receiver_id', $user->user_id)
+                    ->orWhere('sender_id', $user->user_id)->where('receiver_id', $userId);
+            })
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(function ($msg) use ($userId) {
+                    return [
+                        'text' => $msg->content,
+                        'sender' => $msg->sender_id == $userId ? 'user' : 'other',
+                        'time' => $msg->created_at->format('h:i a'),
+                    ];
+                });
+            return [
+                'id' => $user->user_id,
+                'name' => $user->name,
+                'avatar' => $user->avatar ?? 'default.jpg',
+                'messages' => $messages
+            ];
+        });
 
         return response()->json($contacts);
     }
 
+    public function sendMessage(Request $request)
+    {
+        $validated = $request->validate([
+            'sender_id' => 'required|exists:users,user_id',
+            'receiver_id' => 'required|exists:users,user_id',
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $message = Message::create($validated);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Message sent successfully',
+            'data' => [
+                'text' => $message->content,
+                'sender' => 'user',
+                'time' => $message->created_at->format('h:i a'),
+            ]
+        ]);
+    }
 }
