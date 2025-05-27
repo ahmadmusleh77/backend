@@ -25,25 +25,26 @@ Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 
 
 
-
+//ahmad musleh
 //Bids
-Route::get('artisan/bids',[BidController::class,'getPost']);
-Route::post('artisan/bids',[BidController::class,'sendBids']);
-Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
-Route::put('/artisan/{id}', [BidController::class, 'cancelBid']);
-Route::get('/bids/accepted', [BidController::class, 'getAcceptedBids']);
-Route::put('/bids/update-status/{id}', [BidController::class, 'updateBidStatus']);
-Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
-Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
-
+Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
+    Route::get('artisan/bids', [BidController::class, 'getPost']);
+    Route::post('artisan/bids', [BidController::class, 'sendBids']);
+    Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+    Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
+    Route::get('/bids/accepted', [BidController::class, 'getAcceptedBids']);
+    Route::put('/bids/update-status/{id}', [BidController::class, 'updateBidStatus']);
+    Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
+    Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
+//ahmad musleh
 //Message
-Route::get('/chat/contacts/{userId}', [MessageController::class,'getChatContacts']);
-Route::post('/chat/send',[MessageController::class,'sendMessage']);
+    Route::get('/chat/contacts/{userId}', [MessageController::class, 'getChatContacts']);
+    Route::post('/chat/send', [MessageController::class, 'sendMessage']);
 
-
+//ahmad musleh
 //Filter
-Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
-
+    Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
+});
 //swagger
 
 Route::get('/welcome',[SwaggerController::class,'welcome']);
