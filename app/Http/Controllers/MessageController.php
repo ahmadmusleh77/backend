@@ -2,17 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
 
-    public function getChatContacts($userId)
+    public function getChatContacts()
     {
-        $contacts = User::where('user_id', '!=', $userId)->get()->map(function ($user) use ($userId) {
+        $userId = Auth::id();
+        $userIdsWithMessages = Message::where('sender_id', $userId)
+            ->orWhere('receiver_id', $userId)
+            ->get()
+            ->flatMap(function($msg) use ($userId) {
+                return [
+                    $msg->sender_id == $userId ? $msg->receiver_id : $msg->sender_id
+                ];
+            })
+            ->unique();
+
+        $contacts = User::whereIn('user_id', $userIdsWithMessages)->get()->map(function ($user) use ($userId)
+        {
             $messages = Message::where(function ($query) use ($userId, $user) {
                 $query->where('sender_id', $userId)->where('receiver_id', $user->user_id)
                     ->orWhere('sender_id', $user->user_id)->where('receiver_id', $userId);
@@ -26,6 +39,7 @@ class MessageController extends Controller
                         'time' => $msg->created_at->format('h:i a'),
                     ];
                 });
+
             return [
                 'id' => $user->user_id,
                 'name' => $user->name,
@@ -40,12 +54,15 @@ class MessageController extends Controller
     public function sendMessage(Request $request)
     {
         $validated = $request->validate([
-            'sender_id' => 'required|exists:users,user_id',
             'receiver_id' => 'required|exists:users,user_id',
             'content' => 'required|string|max:1000',
         ]);
 
-        $message = Message::create($validated);
+        $message = Message::create([
+            'sender_id' => Auth::id(),
+            'receiver_id' => $validated['receiver_id'],
+            'content' => $validated['content'],
+        ]);
 
         return response()->json([
             'status' => 200,
@@ -57,4 +74,5 @@ class MessageController extends Controller
             ]
         ]);
     }
+
 }

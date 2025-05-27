@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\Bid;
 use App\Models\Jobpost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use function Symfony\Component\String\b;
+
 
 class BidController extends Controller
 {
@@ -83,7 +83,6 @@ class BidController extends Controller
                 'message' => 'Bid not found'
             ]);
         }
-
         $bid->delete();
 
         return response()->json([
@@ -119,7 +118,6 @@ class BidController extends Controller
 
     public function updateJobCurrentStatus(Request $request, $jobId)
     {
-
         $validated = $request->validate([
             'current_status' => 'required|string|in:Pending,In Progress,Completed'
         ]);
@@ -133,7 +131,6 @@ class BidController extends Controller
                 'message' => 'Job not found'
             ]);
         }
-
 
         $job->current_status = $validated['current_status'];
         $job->save();
