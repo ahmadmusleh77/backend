@@ -101,3 +101,13 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
     }
 })->name('password.update');
 
+//karam
+// karam
+Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
+Route::get('/newpost', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
+Route::put('/updatepost/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
+Route::delete('/deletepost/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
+Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
+Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
+Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
+Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
