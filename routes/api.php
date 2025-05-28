@@ -112,3 +112,20 @@ Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::cla
 Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
 Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
 Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
+
+// jamal
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::get('/settings/{id}', [SettingController::class, 'show']);
+    Route::post('/settings', [SettingController::class, 'store']);
+    Route::put('/settings/{id}', [SettingController::class, 'update']);
+    Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+});
