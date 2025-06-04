@@ -12,11 +12,12 @@ use Illuminate\Support\Facades\Auth;
 class BidController extends Controller
 {
 
-    public function getPost ()
+    public function getPost()
     {
-        $jobPost=Jobpost::all();
-        return response()->json($jobPost,200);
+        $jobPost = Jobpost::with('user')->get();
+        return response()->json($jobPost, 200);
     }
+
     public function sendBids(Request $request)
     {
         $artisanId = Auth::id();
@@ -54,6 +55,7 @@ class BidController extends Controller
             ->get()
             ->map(function ($bid) {
                 return [
+                    'bid_id'          => $bid->bids_id,
                     'job_title'       => $bid->jobPost->title ?? 'N/A',
                     'client_name'     => $bid->jobPost->user->name ?? 'N/A',
                     'price'           => $bid->price_estimate,
@@ -103,6 +105,7 @@ class BidController extends Controller
             ->map(function ($bid) {
                 return [
                     'bid_id'         => $bid->bids_id,
+                    'job_id'         => $bid->job_id,
                     'job_title'      => $bid->jobPost->title ?? 'N/A',
                     'client_name'    => $bid->jobPost->user->name ?? 'N/A',
                     'price'          => $bid->price_estimate,
@@ -118,10 +121,11 @@ class BidController extends Controller
 
     public function updateJobCurrentStatus(Request $request, $jobId)
     {
-        $validated = $request->validate([
-            'current_status' => 'required|string|in:Pending,In Progress,Completed'
-        ]);
+        $status = $request->input('current_status');
 
+        $validated = validator(['current_status' => $status], [
+            'current_status' => 'required|string|in:Pending,In Progress,Completed'
+        ])->validate();
 
         $job = Jobpost::find($jobId);
 
@@ -135,12 +139,10 @@ class BidController extends Controller
         $job->current_status = $validated['current_status'];
         $job->save();
 
-
         return response()->json([
             'status' => 200,
             'message' => 'Job status updated successfully',
             'current_status' => $job->current_status
         ]);
     }
-
 }
