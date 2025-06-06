@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    protected $primaryKey ='notification_id';
+    protected $primaryKey ='id';
 
     public $timestamps=true;
     protected $fillable=[
         'user_id',
-        'content',
-        'notification_type',
+        'data',
+        'type',
         'is_read'
 
     ];

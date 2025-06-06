@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id('user_id');
-
             $table->string('user_type');
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('status', 20)->default('active');
+            $table->boolean('is_approved')->default(0);
             $table->rememberToken();
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('restrict')->onUpdate('cascade');
@@ -38,6 +38,8 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
     }
+
+
 
     public function down(): void
     {

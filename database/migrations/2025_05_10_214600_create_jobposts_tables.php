@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('deadline');
             $table->string('image')->nullable();
             $table->string('status', 20)->default('Open');
+            $table->string('current_status')->default('Pending');
+
             $table->timestamps();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade')->onUpdate('cascade');

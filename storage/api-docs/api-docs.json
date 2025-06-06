@@ -9,20 +9,6 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/offers": {
-            "post": {
-                "tags": [
-                    "Bid"
-                ],
-                "summary": "submitOffer",
-                "operationId": "2f6bd0284cc4d024b2387d0e7a6131fd",
-                "responses": {
-                    "200": {
-                        "description": "Successful submitOffer"
-                    }
-                }
-            }
-        },
         "/api/welcome": {
             "get": {
                 "tags": [
@@ -39,10 +25,6 @@
         }
     },
     "tags": [
-        {
-            "name": "Bid",
-            "description": "Bid"
-        },
         {
             "name": "Swagger",
             "description": "Swagger"
