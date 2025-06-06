@@ -12,7 +12,7 @@ class IsArtisan
     {
         $user = Auth::user();
 
-        if (!$user || $user->role_id !== 1) {
+        if (!$user || $user->role_id !== 2) {
             return response()->json([
                 'status' => 403,
                 'message' => 'Access denied. Only artisans are allowed.'
