@@ -104,15 +104,17 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
 
 //karam
 // karam
+Route::middleware(['auth:sanctum'])->group(function () {
 Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
-Route::get('/newpost', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
-Route::put('/updatepost/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
-Route::delete('/deletepost/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
+Route::get('/posts', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
+Route::get('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'getJobPostById']);
+Route::put('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
+Route::delete('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
 Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
 Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
 Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
 Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
-
+});
 // jamal
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);

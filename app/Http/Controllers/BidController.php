@@ -44,7 +44,7 @@ class BidController extends Controller
         ]);
     }
 
-
+    // Get the bids for a specific job post.
     public function getSubmittedOffers()
     {
         $artisanId = Auth::id();

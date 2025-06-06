@@ -24,37 +24,49 @@ class AuthApiController extends Controller
 {
     public function signUp(Request $request)
     {
-        // Validate user input
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'user_type' => 'required|string',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'role_id' => 'required|exists:roles,role_id',
-        ]);
+        try {
+            // Validate user input
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'user_type' => 'required|string',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+                'role_id' => 'required|exists:roles,role_id',
+            ]);
 
-        // Generate OTP
-        $otp = rand(100000, 999999);
-        $otpExpiresAt = now()->addMinutes(15);//بياخد التاريخ
+            // Generate OTP
+            $otp = rand(100000, 999999);
+            $otpExpiresAt = now()->addMinutes(15);
 
-        // Create new user with OTP
-        $user = User::create([
-            'name' => $validated['name'],
-            'user_type' => $validated['user_type'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => $validated['role_id'],
-            'otp' => $otp,
-            'otp_expires_at' => $otpExpiresAt,
-        ]);
+            // Create new user with OTP
+            $user = User::create([
+                'name' => $validated['name'],
+                'user_type' => $validated['user_type'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role_id' => $validated['role_id'],
+                'otp' => $otp,
+                'otp_expires_at' => $otpExpiresAt,
+            ]);
 
-        // Send OTP email
-        Mail::to($user->email)->send(new SendOtpMail($otp));
+            // Send OTP email
+            Mail::to($user->email)->send(new SendOtpMail($otp));
 
-        return response()->json([
-            'message' => 'User registered successfully. OTP sent to email.',
-            'user' => $user
-        ], 201);
+            return response()->json([
+                'message' => 'User registered successfully. OTP sent to email.',
+                'user' => $user
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during registration.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
@@ -134,29 +146,35 @@ class AuthApiController extends Controller
      */
     public function verifyOtp(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|digits:6',
+            ]);
 
-        $user = User::where('email', $request->email)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+            if ($user->otp !== $request->otp) {
+                return response()->json(['message' => 'Invalid OTP.'], 400);
+            }
+            if (now()->greaterThan($user->otp_expires_at)) {
+                return response()->json(['message' => 'OTP expired.'], 400);
+            }
+            // Mark email as verified
+            $user->email_verified_at = now();
+            $user->otp = null;
+            $user->otp_expires_at = null;
+            $user->save();
+            return response()->json(['message' => 'OTP verified successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while verifying OTP.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        if ($user->otp !== $request->otp) {
-            return response()->json(['message' => 'Invalid OTP.'], 400);
-        }
-        if (now()->greaterThan($user->otp_expires_at)) {
-            return response()->json(['message' => 'OTP expired.'], 400);
-        }
-        // Mark email as verified
-        $user->email_verified_at = now();
-        $user->otp = null;
-        $user->otp_expires_at = null;
-        $user->save();
-        return response()->json(['message' => 'OTP verified successfully.'], 200);
     }
-
     /**
      * Send password reset link to user's email with detailed error messages.
      */
