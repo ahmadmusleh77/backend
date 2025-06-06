@@ -32,7 +32,7 @@ Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
     Route::get('artisan/bids', [BidController::class, 'getPost']);
     Route::post('artisan/bids', [BidController::class, 'sendBids']);
-    Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+    Route::get('artisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
     Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
     Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
     Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
