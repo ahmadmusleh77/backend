@@ -32,7 +32,7 @@ Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
     Route::get('artisan/bids', [BidController::class, 'getPost']);
     Route::post('artisan/bids', [BidController::class, 'sendBids']);
-    Route::get('artisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+    Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
     Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
     Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
     Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
@@ -98,22 +98,22 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
     if ($status == \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
         return redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
     } else {
-        return back()->withErrors(['email' => [__($status)]]);
+        return back()->withErrors(['email' => [($status)]]);
     }
 })->name('password.update');
 
 //karam
 // karam
 Route::middleware(['auth:sanctum'])->group(function () {
-Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
-Route::get('/posts', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
-Route::get('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'getJobPostById']);
-Route::put('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
-Route::delete('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
-Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
-Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
-Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
-Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
+    Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
+    Route::get('/posts', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
+    Route::get('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'getJobPostById']);
+    Route::post('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
+    Route::delete('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
+    Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
+    Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
+    Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
+    Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
 });
 // jamal
 Route::middleware(['auth:sanctum'])->group(function () {
