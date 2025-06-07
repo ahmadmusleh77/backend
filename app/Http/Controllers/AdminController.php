@@ -41,20 +41,12 @@ class AdminController extends Controller
     public function countAnnouncedJobs()
     {
         $count = Jobpost::where('status', 'open')->count();
-        $admin = User::where('user_type','admin');
-        if ($admin){
-            app(NotificationController::class)->notifyAdminActivityReport($admin,['count announced jobs'=>$count]);
-        }
         return $count;
     }
 
     public function countDailyJobs()
     {
         $count = Jobpost::whereDate('created_at', Carbon::today())->count();
-        $admin = User::where('user_type','admin');
-        if ($admin){
-            app(NotificationController::class)->notifyAdminActivityReport($admin,['count Daily jobs'=>$count]);
-        }
         return $count;
     }
 

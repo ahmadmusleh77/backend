@@ -5,6 +5,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BidController;
 use App\Http\Controllers\JobFilterController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SwaggerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,25 +27,24 @@ Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 
 
 
-
+//ahmad musleh
 //Bids
-Route::get('artisan/bids',[BidController::class,'getPost']);
-Route::post('artisan/bids',[BidController::class,'sendBids']);
-Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
-Route::put('/artisan/{id}', [BidController::class, 'cancelBid']);
-Route::get('/bids/accepted', [BidController::class, 'getAcceptedBids']);
-Route::put('/bids/update-status/{id}', [BidController::class, 'updateBidStatus']);
-Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
-Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
-
+Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
+    Route::get('artisan/bids', [BidController::class, 'getPost']);
+    Route::post('artisan/bids', [BidController::class, 'sendBids']);
+    Route::get('artisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+    Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
+    Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
+    Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
+//ahmad musleh
 //Message
-Route::get('/chat/contacts/{userId}', [MessageController::class,'getChatContacts']);
-Route::post('/chat/send',[MessageController::class,'sendMessage']);
+    Route::get('/chat/contacts/{userId}', [MessageController::class, 'getChatContacts']);
+    Route::post('/chat/send', [MessageController::class, 'sendMessage']);
 
-
+//ahmad musleh
 //Filter
-Route::get('/jobposts/filter',[JobFilterController::class,'filterJobs']);
-
+    Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
+});
 //swagger
 
 Route::get('/welcome',[SwaggerController::class,'welcome']);
@@ -101,11 +102,32 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
     }
 })->name('password.update');
 
-
-//Notification
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class,'getNotifications']);
-    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class,'markAsRead']);
+//karam
+// karam
+Route::middleware(['auth:sanctum'])->group(function () {
+Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
+Route::get('/posts', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
+Route::get('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'getJobPostById']);
+Route::put('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
+Route::delete('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
+Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
+Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
+Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
+Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
+});
+// jamal
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::get('/settings/{id}', [SettingController::class, 'show']);
+    Route::post('/settings', [SettingController::class, 'store']);
+    Route::put('/settings/{id}', [SettingController::class, 'update']);
+    Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
 });
 
-
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+});

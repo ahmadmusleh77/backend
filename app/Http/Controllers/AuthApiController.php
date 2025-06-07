@@ -48,12 +48,6 @@ class AuthApiController extends Controller
             'otp_expires_at' => $otpExpiresAt,
         ]);
 
-        // إشعار المسؤولين بأن حرفيًا جديدًا سجّل
-        $admin = User::where('user_type', 'admin');// أول مشرف فقط، أو كلهم لو أردتِ
-        if ($admin) {
-            app(NotificationController::class)->notifyAdminNewRegistration($admin,$user);
-        }
-
         // Send OTP email
         Mail::to($user->email)->send(new SendOtpMail($otp));
 
