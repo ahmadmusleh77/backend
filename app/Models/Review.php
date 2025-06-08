@@ -13,21 +13,21 @@ class Review extends Model
         'reviewee_id',
         'job_id',
         'rating',
-        'comment',
+        
     ];
 
     public function reviewer()
     {
-        return $this->belongsTo(User::class, 'reviewer_id');
+        return $this->belongsTo(User::class, 'reviewer_id', 'user_id');
     }
 
     public function reviewee()
     {
-        return $this->belongsTo(User::class, 'reviewee_id');
+        return $this->belongsTo(User::class, 'reviewee_id', 'user_id');
     }
 
     public function jobPost()
     {
-        return $this->belongsTo(JobPost::class, 'job_id');
+        return $this->belongsTo(Jobpost::class, 'job_id', 'job_id');
     }
 }
