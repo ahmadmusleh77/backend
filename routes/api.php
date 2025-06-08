@@ -104,7 +104,7 @@ Route::post('password/reset', function (\Illuminate\Http\Request $request) {
     if ($status == \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
         return redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
     } else {
-        return back()->withErrors(['email' => [($status)]]);
+        return back()->withErrors(['email' => [__($status)]]);
     }
 })->name('password.update');
 
