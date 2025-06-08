@@ -27,21 +27,27 @@ Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 
 
 
+
 //ahmad musleh
-//Bids
+//Message
+Route::middleware('auth:sanctum')->group(function (){
+Route::get('/chat/contacts', [MessageController::class, 'getChatContacts']);
+Route::post('/chat/send', [MessageController::class, 'sendMessage']);
+Route::get('/chat/contact/{id}', [MessageController::class, 'getSingleContact']);
+});
+
+
+
+//ahmad musleh
 Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
+    //Bids
     Route::get('artisan/bids', [BidController::class, 'getPost']);
     Route::post('artisan/bids', [BidController::class, 'sendBids']);
     Route::get('artisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
     Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
     Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
     Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
-//ahmad musleh
-//Message
-    Route::get('/chat/contacts/{userId}', [MessageController::class, 'getChatContacts']);
-    Route::post('/chat/send', [MessageController::class, 'sendMessage']);
 
-//ahmad musleh
 //Filter
     Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
 });
