@@ -8,12 +8,12 @@ use App\Http\Controllers\AuthApiController;
 use App\Http\Controllers\BidController;
 use App\Http\Controllers\JobFilterController;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\SwaggerController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SwaggerController;
 use App\Http\Controllers\JobownerController;
 
-// Testing user retrieval (optional)
+// Testing user retrieval
 Route::get('/user', function (Request $request) {
     return $request->user();
 });
@@ -25,7 +25,7 @@ Route::post('/reset-password', [AuthApiController::class, 'sendResetLinkEmail'])
 Route::post('/otp-verification', [AuthApiController::class, 'verifyOtp']);
 Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 
-// Bid routes (no auth for now)
+// Bid routes (no auth for testing)
 Route::get('artisan/bids', [BidController::class, 'getPost']);
 Route::post('artisan/bids', [BidController::class, 'sendBids']);
 Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
@@ -94,14 +94,14 @@ Route::post('/bids/{id}/accept', [JobownerController::class, 'acceptBid']);
 Route::post('/bids/{id}/reject', [JobownerController::class, 'rejectBid']);
 Route::get('/job-statuses', [JobownerController::class, 'getJobStatuses']);
 
-// ✅ Settings (no auth for testing)
+// ✅ Settings routes (for testing, no auth)
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/settings/{id}', [SettingController::class, 'show']);
 Route::post('/settings', [SettingController::class, 'store']);
 Route::put('/settings/{id}', [SettingController::class, 'update']);
 Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
 
-// ✅ Testing reviews without auth
+// ✅ Reviews routes (for testing, no auth)
 Route::get('/reviews', [ReviewController::class, 'index']);
 Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 Route::post('/reviews', [ReviewController::class, 'store']);
