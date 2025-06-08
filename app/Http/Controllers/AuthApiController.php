@@ -48,6 +48,12 @@ class AuthApiController extends Controller
             'otp_expires_at' => $otpExpiresAt,
         ]);
 
+        //Notification
+        $admin=User::where('user_type','admin');
+        if ($admin) {
+            app(NotificationController::class)->notifyAdminNewRegistration($admin, $user);
+        }
+
         // Send OTP email
         Mail::to($user->email)->send(new SendOtpMail($otp));
 

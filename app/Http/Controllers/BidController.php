@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bid;
 use App\Models\Jobpost;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,6 +38,15 @@ class BidController extends Controller
         }
 
         $bid = Bid::create($validated);
+
+        //
+        $job=Jobpost::where('job_id',$validated['job_id']);
+        if($job){
+            $jobHolder=$job->user_id;
+            $craftsman =User::find(Auth::id());
+            $jobTitle=$job->title;
+            app(NotificationController::class)->notifyTenderRequest($jobHolder,$craftsman,$jobTitle);
+        }
 
         return response()->json([
             'status'  => 200,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Jobpost;
 use App\Models\Bid;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class JobownerController extends Controller
@@ -154,6 +155,16 @@ class JobownerController extends Controller
             $bid = Bid::findOrFail($id);
             $bid->status = 'accepted';
             $bid->save();
+
+            //Notification
+            $job=Jobpost::where('job_id',$bid->job_id)->first();
+            $jobHolder=User::find($job->user_id);
+            $craftsman =User::find($bid->artisan_id);
+            $jobTitle=$job->title;
+            $notificationController = app(NotificationController::class);
+            $notificationController->notifyTenderApprovalToJobHolder($jobHolder,$craftsman,$jobTitle);
+            $notificationController->notifyTenderApprovalToCraftsman($craftsman, $jobTitle);
+
 
             return response()->json([
                 'message' => 'Bid accepted successfully',
