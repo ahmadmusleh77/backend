@@ -4,65 +4,113 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Routing\Controller;
 
 class SettingController extends Controller
 {
-
-    public function index()
+    public function __construct()
     {
-        return response()->json(Setting::all());
+        $this->middleware('auth:sanctum');
     }
 
- 
-    public function create()
+    public function index(Request $request)
     {
-       
+        try {
+            $type = $request->query('type');
+            if ($type && in_array($type, ['admin', 'artisan', 'job_owner'])) {
+                return response()->json(Setting::where('user_type', $type)->get());
+            }
+            return response()->json(Setting::all());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch settings'], 500);
+        }
     }
 
-   
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,user_id|unique:settings,user_id',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:settings,email',
-            'password' => 'required|string|min:8',
-           
-        ]);
+        try {
+            $existing = Setting::where('user_id', Auth::id())->first();
+            if ($existing) {
+                return response()->json(['message' => 'Settings already exist for this user'], 400);
+            }
 
-        $validated['password'] = bcrypt($validated['password']);
+            $validated = Validator::make($request->all(), [
+                'user_type' => 'required|in:admin,artisan,job_owner',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:settings,email',
+                'password' => 'required|string|min:8',
+                'country' => 'nullable|string|max:255',
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:255',
+                'birthday' => 'nullable|date',
+                'gender' => 'nullable|in:Male,Female',
+                'languages' => 'nullable|array',
+                'languages.*' => 'string',
+                'skills' => 'nullable|array',
+                'skills.*' => 'string',
+                'experience' => 'nullable|string',
+                'education' => 'nullable|string'
+            ])->validate();
 
-        $setting = Setting::create($validated);
+            $validated['user_id'] = Auth::id();
+            $validated['password'] = bcrypt($validated['password']);
 
-        return response()->json($setting, 201);
+            $setting = Setting::create($validated);
+
+            return response()->json($setting, 201);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (\Exception $e) {
+    return response()->json([
+        'error' => 'Failed to create setting',
+        'message' => $e->getMessage(),   // هذه تطبع الخطأ الحقيقي
+        'trace' => $e->getTraceAsString() // اختياري، لمزيد من التفاصيل
+    ], 500);
+}
+
     }
 
-    
     public function show(string $id)
     {
-        $setting = Setting::findOrFail($id);
-        return response()->json($setting);
+        try {
+            $setting = Setting::where('user_id', $id)->firstOrFail();
+            return response()->json($setting);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Setting not found'], 404);
+        }
     }
 
-    
-    public function edit(string $id)
-    {
-        
-    }
-
-    
     public function update(Request $request, string $id)
     {
         $setting = Setting::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:settings,email,' . $id . ',setting_id',
-            'password' => 'sometimes|string|min:8',
-          
-        ]);
+        if ($setting->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-        if (isset($validated['password'])) {
+        $rules = [
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:settings,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'country' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'birthday' => 'nullable|date',
+            'gender' => 'nullable|in:Male,Female',
+            'languages' => 'nullable|array',
+            'languages.*' => 'string',
+            'skills' => 'nullable|array',
+            'skills.*' => 'string',
+            'experience' => 'nullable|string',
+            'education' => 'nullable|string'
+        ];
+
+        $validated = $request->validate($rules);
+
+        if (!empty($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
 
@@ -71,7 +119,6 @@ class SettingController extends Controller
         return response()->json($setting);
     }
 
-    
     public function destroy(string $id)
     {
         $setting = Setting::findOrFail($id);

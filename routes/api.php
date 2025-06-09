@@ -45,6 +45,15 @@ Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
 // Swagger welcome
 Route::get('/welcome', [SwaggerController::class, 'welcome']);
 
+// Settings routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::get('/settings/{id}', [SettingController::class, 'show']);
+    Route::post('/settings', [SettingController::class, 'store']);
+    Route::put('/settings/{id}', [SettingController::class, 'update']);
+    Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
+});
+
 // Admin routes
 Route::get('/artisans/count', [AdminController::class, 'countCraftsmen']);
 Route::get('/users/count', [AdminController::class, 'countTotalUsers']);
