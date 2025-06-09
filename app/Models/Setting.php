@@ -15,6 +15,7 @@ class Setting extends Model
 
     protected $fillable = [
         'user_id',
+        'user_type',
         'name',
         'country',
         'phone',
@@ -34,9 +35,11 @@ class Setting extends Model
     ];
 
     protected $casts = [
-        'skills' => 'array', 
-        'birthday' => 'date',
-    ];
+    'languages' => 'array',
+    'skills' => 'array',
+    'birthday' => 'date',
+];
+
 
     public function user()
     {
