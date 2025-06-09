@@ -45,6 +45,7 @@ Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
 // Swagger welcome
 Route::get('/welcome', [SwaggerController::class, 'welcome']);
 
+
 // Settings routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);
@@ -53,6 +54,59 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/settings/{id}', [SettingController::class, 'update']);
     Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
 });
+
+
+//ahmad musleh
+//Message
+Route::middleware('auth:sanctum')->group(function (){
+Route::get('/chat/contacts', [MessageController::class, 'getChatContacts']);
+Route::post('/chat/send', [MessageController::class, 'sendMessage']);
+Route::get('/chat/contact/{id}', [MessageController::class, 'getSingleContact']);
+});
+
+
+
+//ahmad musleh
+Route::middleware(['auth:sanctum','is.artisan'])->group(function () {
+    //Bids
+    Route::get('artisan/bids', [BidController::class, 'getPost']);
+    Route::post('artisan/bids', [BidController::class, 'sendBids']);
+    Route::get('artisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
+    Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
+    Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
+    Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
+
+//Filter
+    Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
+});
+//swagger
+
+Route::get('/welcome',[SwaggerController::class,'welcome']);
+
+/////admin rep
+/// home
+Route::get('/artisans/count', [App\Http\Controllers\AdminController::class, 'countCraftsmen'])->middleware('auth:sanctum');
+Route::get('/users/count',[App\Http\Controllers\AdminController::class ,'countTotalUsers'])->middleware('auth:sanctum');
+Route::get('/Admins/count', [App\Http\Controllers\AdminController::class, 'countAdmins'])->middleware('auth:sanctum');
+Route::get('/CompletedJobs', [App\Http\Controllers\AdminController::class, 'countCompletedJobs'])->middleware('auth:sanctum');
+Route::get('/countAnnouncedJobs', [App\Http\Controllers\AdminController::class, 'countAnnouncedJobs'])->middleware('auth:sanctum');
+Route::get('/countDailyJobs', [App\Http\Controllers\AdminController::class, 'countDailyJobs'])->middleware('auth:sanctum');
+//
+Route::get('/most/users', [App\Http\Controllers\AdminController::class, 'mostUsersPost'])->middleware('auth:sanctum');
+//all post admin
+Route::get('/Posts', [App\Http\Controllers\AdminController::class, 'Posts'])->middleware('auth:sanctum');
+Route::delete('/deletePost/{id}', [App\Http\Controllers\AdminController::class, 'deletePost'])->middleware('auth:sanctum');
+//manage bids
+Route::get('/jobpost/{id}/bids', [AdminController::class, 'getJobpostBids'])->middleware('auth:sanctum');
+
+//Manage Users
+Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->middleware('auth:sanctum');
+Route::put('/Accept/{id}', [App\Http\Controllers\AdminController::class, 'Accept'])->middleware('auth:sanctum');
+Route::get('/UnapprovedUsers', [App\Http\Controllers\AdminController::class, 'UnapprovedUsers'])->middleware('auth:sanctum');
+//
+
+
+
 
 // Admin routes
 Route::get('/artisans/count', [AdminController::class, 'countCraftsmen']);
@@ -88,9 +142,12 @@ Route::post('password/reset', function (Request $request) {
         }
     );
 
-    return $status == \Illuminate\Support\Facades\Password::PASSWORD_RESET
-        ? redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!')
-        : back()->withErrors(['email' => [__($status)]]);
+    if ($status == \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
+        return redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
+    } else {
+        return back()->withErrors(['email' => [__($status)]]);
+    }
+  
 })->name('password.update');
 
 // Job owner routes
