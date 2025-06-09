@@ -13,55 +13,22 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SwaggerController;
 use App\Http\Controllers\JobownerController;
 
-// Testing user retrieval
 Route::get('/user', function (Request $request) {
     return $request->user();
-});
-
-// Auth routes
+})->middleware('auth:sanctum');
 Route::post('/signup', [AuthApiController::class, 'signUp']);
 Route::post('/login', [AuthApiController::class, 'login']);
 Route::post('/reset-password', [AuthApiController::class, 'sendResetLinkEmail']);
 Route::post('/otp-verification', [AuthApiController::class, 'verifyOtp']);
 Route::post('/send-otp', [AuthApiController::class, 'sendOtp']);
 
-// Bid routes (no auth for testing)
-Route::get('artisan/bids', [BidController::class, 'getPost']);
-Route::post('artisan/bids', [BidController::class, 'sendBids']);
-Route::get('artsisan/submitted-offers', [BidController::class, 'getSubmittedOffers']);
-Route::delete('/artisan/{id}', [BidController::class, 'cancelBid']);
-Route::get('/bids/accepted', [BidController::class, 'getAcceptedBids']);
-Route::put('/bids/update-status/{id}', [BidController::class, 'updateBidStatus']);
-Route::get('/offers/accepted', [BidController::class, 'getAcceptedOffers']);
-Route::put('/jobposts/status/{jobId}', [BidController::class, 'updateJobCurrentStatus']);
-
-// Message routes
-Route::get('/chat/contacts/{userId}', [MessageController::class, 'getChatContacts']);
-Route::post('/chat/send', [MessageController::class, 'sendMessage']);
-
-// Job filter
-Route::get('/jobposts/filter', [JobFilterController::class, 'filterJobs']);
-
-// Swagger welcome
-Route::get('/welcome', [SwaggerController::class, 'welcome']);
-
-
-// Settings routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/settings', [SettingController::class, 'index']);
-    Route::get('/settings/{id}', [SettingController::class, 'show']);
-    Route::post('/settings', [SettingController::class, 'store']);
-    Route::put('/settings/{id}', [SettingController::class, 'update']);
-    Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
-});
-
 
 //ahmad musleh
 //Message
 Route::middleware('auth:sanctum')->group(function (){
-Route::get('/chat/contacts', [MessageController::class, 'getChatContacts']);
-Route::post('/chat/send', [MessageController::class, 'sendMessage']);
-Route::get('/chat/contact/{id}', [MessageController::class, 'getSingleContact']);
+    Route::get('/chat/contacts', [MessageController::class, 'getChatContacts']);
+    Route::post('/chat/send', [MessageController::class, 'sendMessage']);
+    Route::get('/chat/contact/{id}', [MessageController::class, 'getSingleContact']);
 });
 
 
@@ -85,26 +52,25 @@ Route::get('/welcome',[SwaggerController::class,'welcome']);
 
 /////admin rep
 /// home
-Route::get('/artisans/count', [App\Http\Controllers\AdminController::class, 'countCraftsmen'])->middleware('auth:sanctum');
-Route::get('/users/count',[App\Http\Controllers\AdminController::class ,'countTotalUsers'])->middleware('auth:sanctum');
-Route::get('/Admins/count', [App\Http\Controllers\AdminController::class, 'countAdmins'])->middleware('auth:sanctum');
-Route::get('/CompletedJobs', [App\Http\Controllers\AdminController::class, 'countCompletedJobs'])->middleware('auth:sanctum');
-Route::get('/countAnnouncedJobs', [App\Http\Controllers\AdminController::class, 'countAnnouncedJobs'])->middleware('auth:sanctum');
-Route::get('/countDailyJobs', [App\Http\Controllers\AdminController::class, 'countDailyJobs'])->middleware('auth:sanctum');
+Route::get('/artisans/count', [App\Http\Controllers\AdminController::class, 'countCraftsmen']);
+Route::get('/users/count',[App\Http\Controllers\AdminController::class ,'countTotalUsers']);
+Route::get('/Admins/count', [App\Http\Controllers\AdminController::class, 'countAdmins']);
+Route::get('/CompletedJobs', [App\Http\Controllers\AdminController::class, 'countCompletedJobs']);
+Route::get('/countAnnouncedJobs', [App\Http\Controllers\AdminController::class, 'countAnnouncedJobs']);
+Route::get('/countDailyJobs', [App\Http\Controllers\AdminController::class, 'countDailyJobs']);
 //
-Route::get('/most/users', [App\Http\Controllers\AdminController::class, 'mostUsersPost'])->middleware('auth:sanctum');
+Route::get('/most/users', [App\Http\Controllers\AdminController::class, 'mostUsersPost']);
 //all post admin
-Route::get('/Posts', [App\Http\Controllers\AdminController::class, 'Posts'])->middleware('auth:sanctum');
-Route::delete('/deletePost/{id}', [App\Http\Controllers\AdminController::class, 'deletePost'])->middleware('auth:sanctum');
+Route::get('/Posts', [App\Http\Controllers\AdminController::class, 'Posts']);
+Route::delete('/deletePost/{id}', [App\Http\Controllers\AdminController::class, 'deletePost']);
 //manage bids
-Route::get('/jobpost/{id}/bids', [AdminController::class, 'getJobpostBids'])->middleware('auth:sanctum');
+//Route::get('/bidds', [App\Http\Controllers\AdminController::class, 'bidds']);
+Route::get('/jobpost/{id}/bids', [AdminController::class, 'getJobpostBids']);
 
 //Manage Users
-Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->middleware('auth:sanctum');
-Route::put('/Accept/{id}', [App\Http\Controllers\AdminController::class, 'Accept'])->middleware('auth:sanctum');
-Route::get('/UnapprovedUsers', [App\Http\Controllers\AdminController::class, 'UnapprovedUsers'])->middleware('auth:sanctum');
+Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'deleteUser']);
+Route::put('/Accept/{id}', [App\Http\Controllers\AdminController::class, 'Accept']);
 //
-
 
 
 
@@ -122,12 +88,12 @@ Route::get('/jobpost/{id}/bids', [AdminController::class, 'getJobpostBids']);
 Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
 Route::put('/Accept/{id}', [AdminController::class, 'Accept']);
 
-// Password reset
+// Password Reset Routes for API
 Route::get('password/reset/{token}', function ($token) {
     return view('auth.reset-password', ['token' => $token]);
 })->name('password.reset');
 
-Route::post('password/reset', function (Request $request) {
+Route::post('password/reset', function (\Illuminate\Http\Request $request) {
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
@@ -145,20 +111,24 @@ Route::post('password/reset', function (Request $request) {
     if ($status == \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
         return redirect('/')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
     } else {
-        return back()->withErrors(['email' => [__($status)]]);
+        return back()->withErrors(['email' => [($status)]]);
     }
-  
 })->name('password.update');
 
-// Job owner routes
-Route::post('/newpost', [JobownerController::class, 'newPost']);
-Route::get('/newpost', [JobownerController::class, 'getJobPosts']);
-Route::put('/updatepost/{id}', [JobownerController::class, 'updateJobPost']);
-Route::delete('/deletepost/{id}', [JobownerController::class, 'deleteJobPost']);
-Route::get('/jobposts/{id}/bids', [JobownerController::class, 'getJobBids']);
-Route::post('/bids/{id}/accept', [JobownerController::class, 'acceptBid']);
-Route::post('/bids/{id}/reject', [JobownerController::class, 'rejectBid']);
-Route::get('/job-statuses', [JobownerController::class, 'getJobStatuses']);
+//karam
+// karam
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/newpost', [\App\Http\Controllers\JobownerController::class, 'newPost']);
+    Route::get('/posts', [\App\Http\Controllers\JobownerController::class, 'getJobPosts']);
+    Route::get('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'getJobPostById']);
+    Route::post('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'updateJobPost']);
+    Route::delete('/posts/{id}', [\App\Http\Controllers\JobownerController::class, 'deleteJobPost']);
+    Route::get('/jobposts/{id}/bids', [\App\Http\Controllers\JobownerController::class, 'getJobBids']);
+    Route::post('/bids/{id}/accept', [\App\Http\Controllers\JobownerController::class, 'acceptBid']);
+    Route::post('/bids/{id}/reject', [\App\Http\Controllers\JobownerController::class, 'rejectBid']);
+    Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
+});
+
 
 // ✅ Settings routes (for testing, no auth)
 Route::get('/settings', [SettingController::class, 'index']);
