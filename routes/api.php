@@ -146,17 +146,18 @@ Route::middleware('auth:sanctum')->group(function (){
 });
 
 
-// ✅ Settings routes (for testing, no auth)
+//  Settings routes 
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/settings/{id}', [SettingController::class, 'show']);
 Route::post('/settings', [SettingController::class, 'store']);
 Route::put('/settings/{id}', [SettingController::class, 'update']);
 Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
 
-// ✅ Reviews routes (for testing, no auth)
+//  Reviews routes 
 Route::get('/reviews', [ReviewController::class, 'index']);
 Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 Route::post('/reviews', [ReviewController::class, 'store']);
 Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+Route::get('/reviews/average/{userId}', [ReviewController::class, 'averageRating']);
 
