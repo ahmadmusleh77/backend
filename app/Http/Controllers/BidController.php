@@ -50,16 +50,16 @@ class BidController extends Controller
             $jobTitle=$job->title;
 
             if (!$jobHolder) {
-                \Log::error('❌ لم يتم العثور على jobHolder');
+                \Log::error(' لم يتم العثور على jobHolder');
             }
             if (!$craftsman) {
-                \Log::error('❌ لم يتم العثور على craftsman');
+                \Log::error(' لم يتم العثور على craftsman');
             }
             if ($job && $jobHolder && $craftsman) {
                 app(NotificationController::class)->notifyTenderRequest($jobHolder, $craftsman, $jobTitle);
-                \Log::info('🧪 سيتم استدعاء notifyTenderRequest');
+                \Log::info(' سيتم استدعاء notifyTenderRequest');
             }else {
-                \Log::warning('⚠️ أحد الكائنات مفقودة: ', [
+                \Log::warning(' أحد الكائنات مفقودة: ', [
                     'jobHolder' => $jobHolder,
                     'craftsman' => $craftsman,
                     'job' => $job
