@@ -36,7 +36,7 @@ class AdminController extends Controller
         $count = Jobpost::where('status', 'completed')->count();
 
         //Notification
-        $admin=User::where('user_type','admin');
+        $admin=User::where('user_type','admin')->first();
         if ($admin){
             app(NotificationController::class)->notifyAdminActivityReport($admin,['count completed jobs is'=>$count]);
         }
@@ -49,7 +49,7 @@ class AdminController extends Controller
     {
         $count = Jobpost::where('status', 'open')->count();
         //Notification
-        $admin=User::where('user_type','admin');
+        $admin=User::where('user_type','admin')->first();
         if ($admin){
             app(NotificationController::class)->notifyAdminActivityReport($admin,['count announced jobs is'=>$count]);
         }

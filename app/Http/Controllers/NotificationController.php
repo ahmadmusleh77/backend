@@ -15,7 +15,7 @@ class NotificationController extends Controller
 
     public function getNotifications()
     {
-        return Auth::user()->notifications;
+        return Auth::user()->notifications()->latest()->get();
     }
 
     public function markAsRead($id)
@@ -24,20 +24,40 @@ class NotificationController extends Controller
         $notification = $user->notifications()->find($id);
 
         if ($notification) {
-            $notification->markAsRead();
-            return response()->json(['message' => 'The notification has been marked as read']);
+            $notification->is_read = true;
+            $notification->save();
+            return response()->json(['message' => ' The notification has been marked as read']);
         }
 
-        return response()->json(['message' => 'Notification not found'], 404);
+        return response()->json(['message' => ' Notification not found'], 404);
     }
 
     // إرسال إشعار عام لمستخدم معيّن (تُستخدم داخليًا حسب نوع المستخدم)
-    private function sendNotification(User $user, string $type, array $data)
+    private function sendNotification(User $user, string $type, array $data): void
     {
-        $user->notifications()->create([
+
+        \Log::info('📨 بدء إرسال إشعار', [
+            'user_id' => $user->id,
             'type' => $type,
-            'data' => json_encode($data)
+            'data' => $data
         ]);
+        try {
+            \App\Models\Notification::create([
+                'user_id'=>$user->user_id,
+                'type' => $type,
+                'data' => json_encode($data)
+            ]);
+            \Log::info('✅ تم تخزين الإشعار في قاعدة البيانات بنجاح', [
+                'user_id' => $user->id,
+                'type' => $type
+            ]);
+        }catch (\Exception $e) {
+            \Log::error('❌ فشل تخزين الإشعار', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+
     }
 
     //for admin
@@ -45,7 +65,7 @@ class NotificationController extends Controller
     {
         if ($admin->user_type==='admin'){
             $this->sendNotification($admin,'new_registration_request',[
-                'message'=>'craftsman' . $newUser->name .'has requested registration and is waiting for review']);
+                'message'=>'craftsman' . $newUser->name .' has requested registration and is waiting for review']);
 
         }
 
@@ -55,7 +75,7 @@ class NotificationController extends Controller
     {
         if($admin->user_type==='admin'){
             $this->sendNotification($admin,'reportData',[
-                'message'=>'New activity report',
+                'message'=>' New activity report',
                 'details'=> $reportData
             ]);
         }
@@ -64,40 +84,44 @@ class NotificationController extends Controller
 
     //for Job Holders
 
-    public function notifyTenderRequest(User $jobHolder,User $craftsman, $jobTitle)
+    public function notifyTenderRequest(User $jobowner,User $artisan, $jobTitle)
     {
-        if ($jobHolder->user_type==='jobHolder'){
-            $this->sendNotification($jobHolder,'tender_request',[
-                'message'=>'the craftsman' .$craftsman->name . 'submitted an offer for a' .$jobTitle .'job'
+        \Log::info('📬 داخل notifyTenderRequest');
+        if ($jobowner->user_type==='jobowner'){
+            \Log::info('📢 إرسال إشعار tender_request...');
+            $this->sendNotification($jobowner,'tender_request',[
+                'message'=>' the artisan ' .$artisan->name . ' submitted an offer for a' .$jobTitle .'job'
             ]);
+        }else {
+            \Log::warning('⚠️ jobHolder ليس jobHolder بل: ' . $jobowner->user_type);
         }
 
     }
 
-    public function notifyTenderApprovalToJobHolder(User $jobHolder, User $craftsman, $jobTitle)
+    public function notifyTenderApprovalToJobHolder(User $jobowner, User $artisan, $jobTitle)
     {
-        if ($jobHolder->user_type === 'job_holder') {
-            $this->sendNotification($jobHolder, 'tender_approved', [
-                'message' => $craftsman->name . 'is offer for a '. $jobTitle .'job has been accepted'
+        if ($jobowner->user_type === '$jobowner') {
+            $this->sendNotification($jobowner, 'tender_approved', [
+                'message' => $artisan->name . 'is offer for a '. $jobTitle .'job has been accepted'
             ]);
         }
     }
 
-    public function notifyJobExpiration(User $jobHolder, $jobTitle, $deadline)
+    public function notifyJobExpiration(User $jobowner, $jobTitle, $deadline)
     {
-        if ($jobHolder->user_type === 'job_holder') {
-            $this->sendNotification($jobHolder, 'job_expiration', [
-                'message' => 'Alert: The application deadline for the'.$jobTitle  .'position is approaching. ',
+        if ($jobowner->user_type === 'jobowner') {
+            $this->sendNotification($jobowner, 'job_expiration', [
+                'message' => ' Alert: The application deadline for the '.$jobTitle  .' position is approaching. ',
                 'deadline' => $deadline
             ]);
         }
     }
 
-    public function notifyNewMessageToJobHolder(User $jobHolder, User $craftsman, $messageContent)
+    public function notifyNewMessageToJobHolder(User $jobowner, User $artisan, $messageContent)
     {
-        if ($jobHolder->user_type === 'job_holder') {
-            $this->sendNotification($jobHolder, 'new_message', [
-                'message' => 'New message from' . $craftsman->name,
+        if ($jobowner->user_type === 'jobowner') {
+            $this->sendNotification($jobowner, 'new_message', [
+                'message' => ' New message from ' . $artisan->name,
                 'content' => $messageContent
             ]);
         }
@@ -106,39 +130,39 @@ class NotificationController extends Controller
 
     //for Craftsmen
 
-    public function notifyNewJob(User $craftsman, $jobTitle)
+    public function notifyNewJob(User $artisan, $jobTitle)
     {
-        if ($craftsman->user_type === 'craftsman') {
-            $this->sendNotification($craftsman, 'new_job_request', [
-                'message' => 'New job posted: ' . $jobTitle
+        if ($artisan->user_type === 'artisan') {
+            $this->sendNotification($artisan, 'new_job_request', [
+                'message' => ' New job posted: ' . $jobTitle
             ]);
         }
     }
 
-    public function notifyTenderApprovalToCraftsman(User $craftsman, $jobTitle)
+    public function notifyTenderApprovalToCraftsman(User $artisan, $jobTitle)
     {
-        if ($craftsman->user_type === 'craftsman') {
-            $this->sendNotification($craftsman, 'tender_approved', [
-                'message' => 'Your job offer has been accepted:' . $jobTitle
+        if ($artisan->user_type === 'artisan') {
+            $this->sendNotification($artisan, 'tender_approved', [
+                'message' => ' Your job offer has been accepted: ' . $jobTitle
             ]);
         }
     }
 
-    public function notifyCraftsmanDeadline(User $craftsman, $jobTitle, $deadline)
+    public function notifyCraftsmanDeadline(User $artisan, $jobTitle, $deadline)
     {
-        if ($craftsman->user_type === 'craftsman') {
-            $this->sendNotification($craftsman, 'deadline_reminder', [
-                'message' => 'Deadline Reminder for ' . $jobTitle . 'Job',
+        if ($artisan->user_type === 'artisan') {
+            $this->sendNotification($artisan, 'deadline_reminder', [
+                'message' => ' Deadline Reminder for ' . $jobTitle . 'Job',
                 'deadline' => $deadline
             ]);
         }
     }
 
-    public function notifyNewMessageToCraftsman(User $craftsman, User $jobHolder, $messageContent)
+    public function notifyNewMessageToCraftsman(User $artisan, User $jobHolder, $messageContent)
     {
-        if ($craftsman->user_type === 'craftsman') {
-            $this->sendNotification($craftsman, 'new_message', [
-                'message' => 'New message from' . $jobHolder->name,
+        if ($artisan->user_type === 'artisan') {
+            $this->sendNotification($artisan, 'new_message', [
+                'message' => ' New message from ' . $jobHolder->name,
                 'content' => $messageContent
             ]);
         }

@@ -39,13 +39,32 @@ class BidController extends Controller
 
         $bid = Bid::create($validated);
 
-        //
-        $job=Jobpost::where('job_id',$validated['job_id']);
+        //Notification
+        $job=Jobpost::where('job_id',$validated['job_id'])->first();
+        \Log::info('🔍 job user_id: ' . $job->user_id);
+        \Log::info('🔍 user_type: ' . User::find($job->user_id)?->user_type);
+
         if($job){
-            $jobHolder=$job->user_id;
+            $jobHolder=User::find($job->user_id);
             $craftsman =User::find(Auth::id());
             $jobTitle=$job->title;
-            app(NotificationController::class)->notifyTenderRequest($jobHolder,$craftsman,$jobTitle);
+
+            if (!$jobHolder) {
+                \Log::error('❌ لم يتم العثور على jobHolder');
+            }
+            if (!$craftsman) {
+                \Log::error('❌ لم يتم العثور على craftsman');
+            }
+            if ($job && $jobHolder && $craftsman) {
+                app(NotificationController::class)->notifyTenderRequest($jobHolder, $craftsman, $jobTitle);
+                \Log::info('🧪 سيتم استدعاء notifyTenderRequest');
+            }else {
+                \Log::warning('⚠️ أحد الكائنات مفقودة: ', [
+                    'jobHolder' => $jobHolder,
+                    'craftsman' => $craftsman,
+                    'job' => $job
+                ]);
+            }
         }
 
         return response()->json([

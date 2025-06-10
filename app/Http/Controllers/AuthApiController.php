@@ -49,7 +49,7 @@ class AuthApiController extends Controller
         ]);
 
         //Notification
-        $admin=User::where('user_type','admin');
+        $admin=User::where('user_type','admin')->first();
         if ($admin) {
             app(NotificationController::class)->notifyAdminNewRegistration($admin, $user);
         }

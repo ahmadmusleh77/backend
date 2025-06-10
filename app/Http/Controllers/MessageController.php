@@ -66,7 +66,7 @@ class MessageController extends Controller
             'content' => $validated['content'],
         ]);
 
-        //$notification
+        //notification
         $sender = User::find(auth()->id());
         $receiver =User::find($validated['receiver_id']);
         $notificationController= app(NotificationController::class);

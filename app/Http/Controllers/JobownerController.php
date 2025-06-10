@@ -6,6 +6,7 @@ use App\Models\Jobpost;
 use App\Models\Bid;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\NotificationController;
 
 class JobownerController extends Controller
 {
@@ -43,6 +44,17 @@ class JobownerController extends Controller
                 'image' => $imagePath,
                 'user_id' => auth()->id()
             ]);
+
+
+            //
+            $notificationController = new NotificationController();
+            $artisans = User::where('user_type', 'artisan')->get();
+            foreach ($artisans as $artisan) {
+                $notificationController->notifyNewJob($artisan, $validated['title']);
+            }
+
+
+
 
             return response()->json(['message' => 'Job posted successfully', 'job' => $job], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -155,7 +167,7 @@ class JobownerController extends Controller
             $bid = Bid::findOrFail($id);
             $bid->status = 'accepted';
             $bid->save();
-
+            \Log::info('📬 قبل  الاشعار ');
             //Notification
             $job=Jobpost::where('job_id',$bid->job_id)->first();
             $jobHolder=User::find($job->user_id);
