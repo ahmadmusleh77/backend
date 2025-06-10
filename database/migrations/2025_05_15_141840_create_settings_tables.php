@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id('setting_id');
             $table->unsignedBigInteger('user_id')->unique();
-           // $table->enum('user_type', ['admin', 'artisan', 'job_owner']);
+            $table->enum('user_type', ['admin', 'artisan', 'job_owner']);
 
 
             $table->string('name');
