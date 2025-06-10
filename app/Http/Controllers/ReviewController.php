@@ -21,9 +21,29 @@ class ReviewController extends Controller
             $validated = $request->validate([
                 'reviewer_id' => 'required|exists:users,user_id',
                 'reviewee_id' => 'required|exists:users,user_id',
-                'job_id'      => 'nullable|exists:jobposts,job_id', // Made nullable for testing
+                'job_id'      => 'nullable|exists:jobposts,job_id',
                 'rating'      => 'required|integer|min:1|max:5',
             ]);
+
+            // منع التقييم الذاتي
+            if ($validated['reviewer_id'] === $validated['reviewee_id']) {
+                return response()->json([
+                    'error' => 'Validation Error',
+                    'message' => 'لا يمكنك تقييم نفسك.',
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            // التحقق من التقييم المكرر
+            $existing = Review::where('reviewer_id', $validated['reviewer_id'])
+                ->where('job_id', $validated['job_id'])
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'error' => 'Duplicate Review',
+                    'message' => 'تم التقييم مسبقًا لهذا العمل.',
+                ], Response::HTTP_CONFLICT);
+            }
 
             $review = Review::create($validated);
 
@@ -31,10 +51,11 @@ class ReviewController extends Controller
                 $review->load(['reviewer', 'reviewee', 'jobPost']),
                 Response::HTTP_CREATED
             );
+
         } catch (ValidationException $e) {
             return response()->json([
                 'error'   => 'Validation Error',
-                'message' => 'The given data was invalid.',
+                'message' => 'البيانات غير صالحة.',
                 'errors'  => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
@@ -76,7 +97,7 @@ class ReviewController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'error'   => 'Validation Error',
-                'message' => 'The given data was invalid.',
+                'message' => 'البيانات غير صالحة.',
                 'errors'  => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
@@ -87,6 +108,26 @@ class ReviewController extends Controller
         }
     }
 
+    public function averageRating($userId)
+{
+    try {
+        $average = Review::where('reviewee_id', $userId)->avg('rating');
+        $count = Review::where('reviewee_id', $userId)->count();
+
+        return response()->json([
+            'user_id' => $userId,
+            'average_rating' => round($average, 1),
+            'total_reviews' => $count
+        ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Server Error',
+            'message' => $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
+
+
     public function destroy($id)
     {
         try {
@@ -94,7 +135,7 @@ class ReviewController extends Controller
             $review->delete();
 
             return response()->json([
-                'message' => 'Review deleted successfully.'
+                'message' => 'تم حذف التقييم بنجاح.'
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([

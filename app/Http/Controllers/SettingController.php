@@ -64,13 +64,12 @@ class SettingController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->errors()], 422);
         } catch (\Exception $e) {
-    return response()->json([
-        'error' => 'Failed to create setting',
-        'message' => $e->getMessage(),   // هذه تطبع الخطأ الحقيقي
-        'trace' => $e->getTraceAsString() // اختياري، لمزيد من التفاصيل
-    ], 500);
-}
-
+            return response()->json([
+                'error' => 'Failed to create setting',
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 
     public function show(string $id)
@@ -93,7 +92,7 @@ class SettingController extends Controller
 
         $rules = [
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:settings,email,' . $id,
+            'email' => 'nullable|email|unique:settings,email,' . $id . ',setting_id',
             'password' => 'nullable|string|min:8',
             'country' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
@@ -112,6 +111,8 @@ class SettingController extends Controller
 
         if (!empty($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
         }
 
         $setting->update($validated);
