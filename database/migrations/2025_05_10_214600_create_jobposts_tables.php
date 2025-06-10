@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('location', 100);
             $table->date('deadline');
             $table->string('image')->nullable();
-            $table->string('status', 20)->default('Open');
+            $table->string('status', 20)->default('active');
             $table->string('current_status')->default('Pending');
 
             $table->timestamps();

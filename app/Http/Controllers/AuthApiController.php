@@ -13,15 +13,14 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException; // هذا هو الصحيح
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendOtpMail;
-
 class AuthApiController extends Controller
-
+{
     /**
      * Register a new user.
      */
 
 
-{
+
     public function signUp(Request $request)
     {
         // Validate user input

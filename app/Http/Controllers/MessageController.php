@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,22 +9,19 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
-
     public function getChatContacts()
     {
         $userId = Auth::id();
+
         $userIdsWithMessages = Message::where('sender_id', $userId)
             ->orWhere('receiver_id', $userId)
             ->get()
-            ->flatMap(function($msg) use ($userId) {
-                return [
-                    $msg->sender_id == $userId ? $msg->receiver_id : $msg->sender_id
-                ];
+            ->flatMap(function ($msg) use ($userId) {
+                return [$msg->sender_id == $userId ? $msg->receiver_id : $msg->sender_id];
             })
             ->unique();
 
-        $contacts = User::whereIn('user_id', $userIdsWithMessages)->get()->map(function ($user) use ($userId)
-        {
+        $contacts = User::whereIn('user_id', $userIdsWithMessages)->get()->map(function ($user) use ($userId) {
             $messages = Message::where(function ($query) use ($userId, $user) {
                 $query->where('sender_id', $userId)->where('receiver_id', $user->user_id)
                     ->orWhere('sender_id', $user->user_id)->where('receiver_id', $userId);
@@ -85,6 +81,28 @@ class MessageController extends Controller
                 'sender' => 'user',
                 'time' => $message->created_at->format('h:i a'),
             ]
+        ]);
+    }
+    public function getSingleContact($id, Request $request)
+    {
+        $authUser = $request->user();
+        $targetUser = User::find($id);
+
+        if (!$targetUser) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        if ($authUser->id === $targetUser->id) {
+            return response()->json(['message' => 'You cannot chat with yourself'], 400);
+        }
+
+        return response()->json([
+            'id' => $targetUser->id,
+            'name' => $targetUser->name,
+            'avatar' => $targetUser->avatar
+                ? asset('storage/' . $targetUser->avatar)
+                : asset('storage/default.jpg'),
+            'messages' => []
         ]);
     }
 

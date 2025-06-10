@@ -30,10 +30,10 @@ class JobownerController extends Controller
                 'image' => 'nullable|file|image|max:2048'
             ]);
 
-            $imagePath = "https://www.ikea.com/us/en/images/products/vedhamn-drawer-front-oak__1023055_pe833063_s5.jpg?f=xl";
-            // if ($request->hasFile('image')) {
-            //     $imagePath = $request->file('image')->store('job_images', 'public');
-            // }
+            if ($request->hasFile('image')) {
+                $filename = uniqid() . '_' . time() . '.' . $request->file('image')->getClientOriginalExtension();
+                $imagePath = $request->file('image')->storeAs('job_images', $filename, 'public');
+            }
 
             $job = Jobpost::create([
                 'title' => $validated['title'],
@@ -41,7 +41,7 @@ class JobownerController extends Controller
                 'budget' => $validated['budget'],
                 'location' => $validated['location'],
                 'deadline' => $validated['deadline'],
-                'image' => $imagePath,
+                'image' => $imagePath ? asset('storage/' . $imagePath) : null,
                 'user_id' => auth()->id()
             ]);
 
@@ -70,6 +70,35 @@ class JobownerController extends Controller
         }
     }
 
+
+    public function updateJobPost(Request $request, $job_id)
+    {
+        $this->authorizeRequest();
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|required|string',
+            'budget' => 'sometimes|required|numeric|min:0',
+            'location' => 'sometimes|required|string',
+            'deadline' => 'sometimes|required|date',
+            'image' => 'nullable|file|image|max:2048'
+        ]);
+
+        if ($request->hasFile('image')) {
+            $filename = uniqid() . '_' . time() . '.' . $request->file('image')->getClientOriginalExtension();
+            $imagePath = $request->file('image')->storeAs('job_images', $filename, 'public');
+            $validated['image'] = asset('storage/' . $imagePath);
+        }
+
+        $job = Jobpost::findOrFail($job_id);
+        $job->update($validated);
+
+        return response()->json([
+            'message' => 'Job post updated successfully',
+            'data' => $job
+        ], 200);
+    }
+
+
     public function getJobPosts()
     {
         $this->authorizeRequest();
@@ -96,26 +125,7 @@ class JobownerController extends Controller
         ], 200);
     }
 
-    public function updateJobPost(Request $request, $job_id)
-    {
-        $this->authorizeRequest();
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'budget' => 'sometimes|required|numeric|min:0',
-            'location' => 'sometimes|required|string',
-            'deadline' => 'sometimes|required|date',
-            'image' => 'nullable|string|max:2048'
-        ]);
 
-        $job = Jobpost::findOrFail($job_id);
-        $job->update($validated);
-
-        return response()->json([
-            'message' => 'Job post updated successfully',
-            'data' => $job
-        ], 200);
-    }
 
     public function deleteJobPost($id)
     {
@@ -134,7 +144,7 @@ class JobownerController extends Controller
     public function getJobBids($id)
     {
         $this->authorizeRequest();
-        $job = Jobpost::with('bids.user')->find($id);
+        $job = Jobpost::with('bids.artisan')->find($id);
 
         if (!$job) {
             return response()->json(['message' => 'Job post not found'], 404);
@@ -144,18 +154,19 @@ class JobownerController extends Controller
             return response()->json(['message' => 'This job does not have a bids relationship defined'], 500);
         }
 
-        $bids = $job->bids->map(function ($bid) {
+        // Filter bids with status "Pending"
+        $bids = $job->bids->where('status', 'Pending')->map(function ($bid) {
             return [
-                'id' => $bid->bids_id,
+                'id' => $bid->bids_id, // or $bid->id if that's what you prefer
                 'user_name' => $bid->user_name ?? 'Unknown',
                 'price_estimate' => $bid->price_estimate,
                 'timeline' => $bid->timeline,
-                'status' => $bid->status ?? 'pending'
+                'status' => $bid->status, // This should be "Pending" for all
             ];
         });
 
         return response()->json([
-            'message' => 'Bids retrieved successfully',
+            'message' => 'Pending bids retrieved successfully',
             'data' => $bids
         ], 200);
     }
@@ -165,7 +176,7 @@ class JobownerController extends Controller
         $this->authorizeRequest();
         try {
             $bid = Bid::findOrFail($id);
-            $bid->status = 'accepted';
+            $bid->status = 'Accepted';
             $bid->save();
             \Log::info('📬 قبل  الاشعار ');
             //Notification
@@ -194,7 +205,7 @@ class JobownerController extends Controller
         $this->authorizeRequest();
         try {
             $bid = Bid::findOrFail($id);
-            $bid->status = 'rejected';
+            $bid->status = 'Rejected';
             $bid->save();
 
             return response()->json([
@@ -210,47 +221,33 @@ class JobownerController extends Controller
     }
     public function getJobStatuses()
     {
-        $offers = [
-            [
-                'id' => 1,
-                'jobTitle' => 'Plumbing Service',
-                'clientName' => 'Ali Al-Farsi',
-                'price' => 1500,
-                'status' => 'completed',
-                'rating' => 5,
-            ],
-            [
-                'id' => 2,
-                'jobTitle' => 'Electrical Wiring',
-                'clientName' => 'Mona Saleh',
-                'price' => 2500,
-                'status' => 'pending',
-                'rating' => 5,
-            ],
-            [
-                'id' => 3,
-                'jobTitle' => 'House Painting',
-                'clientName' => 'Ahmed Al-Bassam',
-                'price' => 3500,
-                'status' => 'completed',
-                'rating' => 5,
-            ],
-            [
-                'id' => 4,
-                'jobTitle' => 'Roof Repair',
-                'clientName' => 'Fatima Al-Mutairi',
-                'price' => 1800,
-                'status' => 'pending',
-                'rating' => 5,
-            ],
-        ];
+        $this->authorizeRequest();
+
+        $userId = auth()->id();
+
+        // Get all jobposts owned by the authenticated user
+        $jobPostIds = Jobpost::where('user_id', $userId)->pluck('job_id');
+
+        // Get all accepted bids for those jobposts
+        $acceptedBids = Bid::whereIn('job_id', $jobPostIds)
+            ->where('status', 'Accepted') // or strtolower() if needed
+            ->with(['jobpost', 'artisan']) // make sure 'artisan' and 'jobpost' relations exist
+            ->get();
+
+        $formattedOffers = $acceptedBids->map(function ($bid) {
+            return [
+                'id' => $bid->bids_id,
+                'jobTitle' => $bid->jobpost->title ?? 'Unknown Job',
+                'clientName' => $bid->artisan->name ?? 'Unknown Artisan',
+                'price' => $bid->price_estimate,
+                'status' => $bid->jobpost->current_status,
+                'rating' => 5, // Static rating for now
+            ];
+        });
 
         return response()->json([
-            'message' => 'Job status retrieved successfully',
-            'data' => $offers,
+            'message' => 'Accepted offers retrieved successfully',
+            'data' => $formattedOffers
         ], 200);
     }
-
-
-
 }
