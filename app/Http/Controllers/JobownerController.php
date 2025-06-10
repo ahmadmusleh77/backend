@@ -17,7 +17,6 @@ class JobownerController extends Controller
         }
     }
 
-    //karam
     public function newPost(Request $request)
     {
         $this->authorizeRequest();
