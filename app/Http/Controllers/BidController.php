@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bid;
 use App\Models\Jobpost;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,6 +38,34 @@ class BidController extends Controller
         }
 
         $bid = Bid::create($validated);
+
+        //Notification
+        $job=Jobpost::where('job_id',$validated['job_id'])->first();
+        \Log::info('🔍 job user_id: ' . $job->user_id);
+        \Log::info('🔍 user_type: ' . User::find($job->user_id)?->user_type);
+
+        if($job){
+            $jobHolder=User::find($job->user_id);
+            $craftsman =User::find(Auth::id());
+            $jobTitle=$job->title;
+
+            if (!$jobHolder) {
+                \Log::error('❌ لم يتم العثور على jobHolder');
+            }
+            if (!$craftsman) {
+                \Log::error('❌ لم يتم العثور على craftsman');
+            }
+            if ($job && $jobHolder && $craftsman) {
+                app(NotificationController::class)->notifyTenderRequest($jobHolder, $craftsman, $jobTitle);
+                \Log::info('🧪 سيتم استدعاء notifyTenderRequest');
+            }else {
+                \Log::warning('⚠️ أحد الكائنات مفقودة: ', [
+                    'jobHolder' => $jobHolder,
+                    'craftsman' => $craftsman,
+                    'job' => $job
+                ]);
+            }
+        }
 
         return response()->json([
             'status'  => 200,

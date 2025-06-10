@@ -129,6 +129,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/job-statuses', [\App\Http\Controllers\JobownerController::class, 'getJobStatuses']);
 });
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+});
+
+
+//shahd
+//Notification
+Route::middleware('auth:sanctum')->group(function (){
+    Route::get('/notifications',[\App\Http\Controllers\NotificationController::class,'getNotifications']);
+    Route::put('/notifications/{id}/read',[\App\Http\Controllers\NotificationController::class,'markAsRead']);
+});
+
 
 // ✅ Settings routes (for testing, no auth)
 Route::get('/settings', [SettingController::class, 'index']);
@@ -143,3 +159,4 @@ Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 Route::post('/reviews', [ReviewController::class, 'store']);
 Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+

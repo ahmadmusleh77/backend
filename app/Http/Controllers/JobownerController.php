@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Jobpost;
 use App\Models\Bid;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\NotificationController;
 
 class JobownerController extends Controller
 {
@@ -42,6 +44,17 @@ class JobownerController extends Controller
                 'image' => $imagePath ? asset('storage/' . $imagePath) : null,
                 'user_id' => auth()->id()
             ]);
+
+
+            //
+            $notificationController = new NotificationController();
+            $artisans = User::where('user_type', 'artisan')->get();
+            foreach ($artisans as $artisan) {
+                $notificationController->notifyNewJob($artisan, $validated['title']);
+            }
+
+
+
 
             return response()->json(['message' => 'Job posted successfully', 'job' => $job], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -165,6 +178,16 @@ class JobownerController extends Controller
             $bid = Bid::findOrFail($id);
             $bid->status = 'Accepted';
             $bid->save();
+            \Log::info('📬 قبل  الاشعار ');
+            //Notification
+            $job=Jobpost::where('job_id',$bid->job_id)->first();
+            $jobHolder=User::find($job->user_id);
+            $craftsman =User::find($bid->artisan_id);
+            $jobTitle=$job->title;
+            $notificationController = app(NotificationController::class);
+            $notificationController->notifyTenderApprovalToJobHolder($jobHolder,$craftsman,$jobTitle);
+            $notificationController->notifyTenderApprovalToCraftsman($craftsman, $jobTitle);
+
 
             return response()->json([
                 'message' => 'Bid accepted successfully',

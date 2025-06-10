@@ -54,11 +54,24 @@ class MessageController extends Controller
             'content' => 'required|string|max:1000',
         ]);
 
+
+
         $message = Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $validated['receiver_id'],
             'content' => $validated['content'],
         ]);
+
+        //notification
+        $sender = User::find(auth()->id());
+        $receiver =User::find($validated['receiver_id']);
+        $notificationController= app(NotificationController::class);
+        if ($sender->user_type === 'job_holder' && $receiver->user_type === 'craftsman') {
+            $notificationController->notifyNewMessageToCraftsman($receiver, $sender, $validated['content']);
+        } elseif ($sender->user_type === 'craftsman' && $receiver->user_type === 'job_holder') {
+            $notificationController->notifyNewMessageToJobHolder($receiver, $sender, $validated['content']);
+        }
+
 
         return response()->json([
             'status' => 200,
