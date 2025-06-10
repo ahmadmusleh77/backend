@@ -16,18 +16,7 @@ class SettingController extends Controller
         $this->middleware('auth:sanctum');
     }
 
-    public function index(Request $request)
-    {
-        try {
-            $type = $request->query('type');
-            if ($type && in_array($type, ['admin', 'artisan', 'job_owner'])) {
-                return response()->json(Setting::where('user_type', $type)->get());
-            }
-            return response()->json(Setting::all());
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to fetch settings'], 500);
-        }
-    }
+    
 
     public function store(Request $request)
     {
@@ -120,11 +109,5 @@ class SettingController extends Controller
         return response()->json($setting);
     }
 
-    public function destroy(string $id)
-    {
-        $setting = Setting::findOrFail($id);
-        $setting->delete();
-
-        return response()->json(['message' => 'Setting deleted']);
-    }
+    
 }

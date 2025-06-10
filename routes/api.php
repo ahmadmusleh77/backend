@@ -147,11 +147,11 @@ Route::middleware('auth:sanctum')->group(function (){
 
 
 //  Settings routes 
-Route::get('/settings', [SettingController::class, 'index']);
+
 Route::get('/settings/{id}', [SettingController::class, 'show']);
 Route::post('/settings', [SettingController::class, 'store']);
 Route::put('/settings/{id}', [SettingController::class, 'update']);
-Route::delete('/settings/{id}', [SettingController::class, 'destroy']);
+
 
 //  Reviews routes 
 Route::get('/reviews', [ReviewController::class, 'index']);
@@ -160,4 +160,7 @@ Route::post('/reviews', [ReviewController::class, 'store']);
 Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 Route::get('/reviews/average/{userId}', [ReviewController::class, 'averageRating']);
+
+Route::post('/reviews', [ReviewController::class, 'store']);
+Route::get('/users/{userId}/average-rating', [ReviewController::class, 'averageRating']);
 

@@ -12,8 +12,7 @@ class Review extends Model
         'reviewer_id',
         'reviewee_id',
         'job_id',
-        'rating',
-        
+        'rating'
     ];
 
     public function reviewer()
