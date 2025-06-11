@@ -154,12 +154,6 @@ Route::put('/settings/{id}', [SettingController::class, 'update']);
 
 
 //  Reviews routes 
-Route::get('/reviews', [ReviewController::class, 'index']);
-Route::get('/reviews/{id}', [ReviewController::class, 'show']);
-Route::post('/reviews', [ReviewController::class, 'store']);
-Route::put('/reviews/{id}', [ReviewController::class, 'update']);
-Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
-Route::get('/reviews/average/{userId}', [ReviewController::class, 'averageRating']);
 
 Route::post('/reviews', [ReviewController::class, 'store']);
 Route::get('/users/{userId}/average-rating', [ReviewController::class, 'averageRating']);
