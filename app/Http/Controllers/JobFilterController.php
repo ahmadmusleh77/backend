@@ -12,8 +12,8 @@ class JobFilterController extends Controller
         $location = $request->input('location', null);
         $minPrice = $request->input('minPrice', null);
         $maxPrice = $request->input('maxPrice', null);
-
-        $query = Jobpost::query();
+        $query = Jobpost::with('user')->select(['*', 'job_id as jobId']);
+        //$query = Jobpost::query();
 
         if ($jobTitle) {
             $query->where('title', 'LIKE', '%' . $jobTitle . '%');
